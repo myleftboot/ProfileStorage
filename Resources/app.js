@@ -32,10 +32,10 @@ var label = Ti.UI.createLabel({text:  'Compare the performance of Properties, da
 var dummySpace = Ti.UI.createView({height:30});
 
 var progressBar = Ti.UI.createProgressBar({
-	min:   0,
-	max:   1000,
-	value: 0,
-	color: '#fff',
+	min:     0,
+	max:     1000,
+	value:   0,
+	color:   '#fff',
 	message: 'writing '+ iterations + ' records'
 });
 
@@ -58,7 +58,7 @@ testProperties.addEventListener('click', function() {
 		progressBar.setValue(i);
 	}
 	end({obj: propertiesResult});
-})
+});
 
 propertiesResult = Ti.UI.createLabel({
 	color: '#fff',
@@ -75,12 +75,13 @@ testDatabase.addEventListener('click', function() {
 
 	start({message: 'database'});
 	
-	var db = Ti.Database.install('profiler', 'theProfiler');
+	var db = Ti.Database.open('theProfiler');
+        if (Ti.platform.
 	db.file.setRemoteBackup(false);
-	db.execute('CREATE TABLE IF NOT EXISTS profiler  (id INTEGER)');
-    db.execute('DELETE FROM profiler');
-    // insert an array of values
-    var insArr = [];
+	db.execute('CREATE TABLE IF NOT EXISTS profiler (id INTEGER)');
+        db.execute('DELETE FROM profiler');
+        // insert an array of values
+        var insArr = [];
 	for (i=0; i< iterations; i++ ) {
 		insArr[i] = i;
 		progressBar.setValue(i);
@@ -89,11 +90,21 @@ testDatabase.addEventListener('click', function() {
 	
 	resetPB({message: 'Reading '+iterations+ ' database entries'});
 	var result;
-	for (i=0; i< iterations; i++ ) {
-		result += Ti.App.Properties.getInt('P'+i, i);
-		progressBar.setValue(i);
-	}
+        // the other tests are looping around summing the values that were entered
+        // for the database we can simply issue a sum
+        // You may think that this is not a strictly fair comparison, but actually it is. Why loop around summing
+        // the values in javascript when we can do it efficiently in compiled database code?
+        // After all the database has to loop through all the records to compute the sum so its an interesting test
+        // to see how much faster this is than interpreted javascript code.
+	var rows = db.execute('SELECT SUM(id) FROM profiler');
 	db.close();
+
+        if (rows.isValidRow())
+        {
+            result =  rows.field(1));
+        }
+        rows.close();
+        progressBar.setValue(progressBar.getMax());
 	end({obj: databaseResult});
 })
 
