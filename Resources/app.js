@@ -2,7 +2,7 @@
 Titanium.UI.setBackgroundColor('#000');
 
 var iterations = 1000;
-var start;
+var started;
 
 var win1 = Titanium.UI.createWindow({  
     title:'Storage Profiler',
@@ -11,14 +11,18 @@ var win1 = Titanium.UI.createWindow({
 
 function start(_args) {
 	progressBar.message = 'Writing '+ iterations + ' '+ _args.message
-	start = new Date;
+	started = new Date;
 }
 
 function end(_args) {
 	var end = new Date;
-	_args.obj.text = end - start+ 'ms';
+	_args.obj.text = end - started+ 'ms';
 }
 
+function resetPB(_args) {
+	progressBar.setValue = progressBar.getMin();
+	progressBar.setMessage(_args.message);
+}
 var vw = Ti.UI.createView({layout: 'vertical'});
 
 var label = Ti.UI.createLabel({text:  'Compare the performance of Properties, database and files'
@@ -47,6 +51,7 @@ testProperties.addEventListener('click', function() {
 		Ti.App.Properties.setInt('P'+i, i);
 		progressBar.setValue(i);
 	}
+	resetPB({message: 'Reading '+iterations+ ' properties'});
 	var result;
 	for (i=0; i< iterations; i++ ) {
 		result += Ti.App.Properties.getInt('P'+i, i);
@@ -67,16 +72,28 @@ var testDatabase = Ti.UI.createButton({
 });
 
 testDatabase.addEventListener('click', function() {
+
 	start({message: 'database'});
+	
+	var db = Ti.Database.install('profiler', 'theProfiler');
+	db.file.setRemoteBackup(false);
+	db.execute('CREATE TABLE IF NOT EXISTS profiler  (id INTEGER)');
+    db.execute('DELETE FROM profiler');
+    // insert an array of values
+    var insArr = [];
 	for (i=0; i< iterations; i++ ) {
-		Ti.App.Properties.setInt('P'+i, i);
+		insArr[i] = i;
 		progressBar.setValue(i);
 	}
+	db.execute('INSERT INTO profiler(id) VALUES (?)', insArr);
+	
+	resetPB({message: 'Reading '+iterations+ ' database entries'});
 	var result;
 	for (i=0; i< iterations; i++ ) {
 		result += Ti.App.Properties.getInt('P'+i, i);
 		progressBar.setValue(i);
 	}
+	db.close();
 	end({obj: databaseResult});
 })
 
@@ -93,13 +110,22 @@ var testFile = Ti.UI.createButton({
 
 testFile.addEventListener('click', function() {
 	start({message: 'file'});
-	for (i=0; i< iterations; i++ ) {
-		Ti.App.Properties.setInt('P'+i, i);
-		progressBar.setValue(i);
-	}
+	var theFile = Ti.Filesystem.createTempFile();
 	var result;
 	for (i=0; i< iterations; i++ ) {
-		result += Ti.App.Properties.getInt('P'+i, i);
+		theFile.write(i+' ', true);
+		progressBar.setValue(i);
+	}
+	
+	resetPB({message: 'Reading '+iterations+ ' records from file'});
+	// Read the contents of the file
+	// We can only get the whole file as a blob
+	// so we have a bit of work to do to process it
+	var contents = new String(theFile.read().toString); // read file and convert it to a string
+
+	var contentsArr = contents.split(' ');
+	for (i=0; i< contentsArr.length; i++ ) {
+		result += contentsArr[i];
 		progressBar.setValue(i);
 	}
 	end({obj: fileResult});
