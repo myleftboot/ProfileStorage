@@ -76,8 +76,7 @@ testDatabase.addEventListener('click', function() {
 	start({message: 'database'});
 	
 	var db = Ti.Database.open('theProfiler');
-        if (Ti.platform.
-	db.file.setRemoteBackup(false);
+        if (Ti.platform.name == 'iPhone OS') db.file.setRemoteBackup(false);
 	db.execute('CREATE TABLE IF NOT EXISTS profiler (id INTEGER)');
         db.execute('DELETE FROM profiler');
         // insert an array of values
