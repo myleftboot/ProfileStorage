@@ -1,4 +1,9 @@
-
+tmp
+*.class
+*.pyc
+*.pyo
+build/
+build.log
 build/android/.DS_Store
 
 build/android/.classpath

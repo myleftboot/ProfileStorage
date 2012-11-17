@@ -76,16 +76,14 @@ testDatabase.addEventListener('click', function() {
 	start({message: 'database'});
 	
 	var db = Ti.Database.open('theProfiler');
-        if (Ti.platform.name == 'iPhone OS') db.file.setRemoteBackup(false);
+        if (Ti.Platform.name == 'iPhone OS') db.file.setRemoteBackup(false);
 	db.execute('CREATE TABLE IF NOT EXISTS profiler (id INTEGER)');
         db.execute('DELETE FROM profiler');
-        // insert an array of values
-        var insArr = [];
+        // insert values
 	for (i=0; i< iterations; i++ ) {
-		insArr[i] = i;
+		db.execute('INSERT INTO profiler(id) VALUES (?)', i);
 		progressBar.setValue(i);
 	}
-	db.execute('INSERT INTO profiler(id) VALUES (?)', insArr);
 	
 	resetPB({message: 'Reading '+iterations+ ' database entries'});
 	var result;
@@ -96,13 +94,13 @@ testDatabase.addEventListener('click', function() {
         // After all the database has to loop through all the records to compute the sum so its an interesting test
         // to see how much faster this is than interpreted javascript code.
 	var rows = db.execute('SELECT SUM(id) FROM profiler');
-	db.close();
 
         if (rows.isValidRow())
         {
-            result =  rows.field(1));
+            result =  rows.field(0);
         }
         rows.close();
+        db.close();
         progressBar.setValue(progressBar.getMax());
 	end({obj: databaseResult});
 })
