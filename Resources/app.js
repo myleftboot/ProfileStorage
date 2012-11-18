@@ -20,8 +20,8 @@ function end(_args) {
 }
 
 function resetPB(_args) {
-	progressBar.setValue = progressBar.getMin();
-	progressBar.setMessage(_args.message);
+	progressBar.value = progressBar.getMin();
+	progressBar.message = _args.message;
 }
 var vw = Ti.UI.createView({layout: 'vertical'});
 
