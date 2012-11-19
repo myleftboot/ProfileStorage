@@ -144,8 +144,16 @@ fileResult = Ti.UI.createLabel({
 	height: 40
 });
 
+var button = Ti.UI.createButton({
+  title:    'Click to Open Preferences'
+});
+button.addEventListener('click', function() {
+  Ti.UI.Android.openPreferences();
+});
+
 vw.add(label);
 vw.add(dummySpace);
+vw.add(button);
 vw.add(testProperties);
 vw.add(propertiesResult);
 vw.add(testDatabase);
@@ -153,6 +161,7 @@ vw.add(databaseResult);
 vw.add(testFile);
 vw.add(fileResult);
 vw.add(progressBar);
+
 progressBar.show();
 win1.add(vw);
 win1.open();
