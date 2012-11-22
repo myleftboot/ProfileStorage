@@ -137,6 +137,8 @@ testFile.addEventListener('click', function() {
 		progressBar.setValue(i);
 	}
 	end({obj: fileResult});
+	
+	theFile = null;
 })
 
 fileResult = Ti.UI.createLabel({
