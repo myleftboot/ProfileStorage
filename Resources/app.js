@@ -29,8 +29,6 @@ var label = Ti.UI.createLabel({text:  'Compare the performance of Properties, da
                               ,color: '#888'
                               ,height: 40});
 
-var dummySpace = Ti.UI.createView({height:30});
-
 var progressBar = Ti.UI.createProgressBar({
 	min:     0,
 	max:     1000,
@@ -43,6 +41,7 @@ var testProperties = Ti.UI.createButton({
 	title:		'Test Properties',
 	height:		40,
 	width:		150,
+	top:		30
 });
 
 testProperties.addEventListener('click', function() {
@@ -147,7 +146,6 @@ fileResult = Ti.UI.createLabel({
 });
 
 vw.add(label);
-vw.add(dummySpace);
 vw.add(testProperties);
 vw.add(propertiesResult);
 vw.add(testDatabase);
